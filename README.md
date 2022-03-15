@@ -35,3 +35,12 @@ To start the server, run:
 dnsmasq -d -C [configuration file]
 ```
 Root privileges are likely required (use `sudo`).
+
+### node.js
+`node` is used to host a web server.
+- `node/webserver_basic.js` provides the script to run a very basic web server.
+To start the server, run:
+```
+node [script file]
+```
+Root privileges are likely required (use `sudo`).

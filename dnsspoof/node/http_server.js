@@ -15,7 +15,7 @@ function handleGet(req, res) {
     case '/':
       resource = '/login.html';
       break;
-    case 'favicon.ico':
+    case '/favicon.ico':
       resource = '/img/favicon.ico';
       break;
     case '/gg':
@@ -52,14 +52,11 @@ function handlePost(req, res) {
   let resource = req.url;
   switch (resource) {
     case '/login':
-      readBody(req, body => {
+      parseFormData(req, formData => {
+        console.log(formData); // DEBUG
         let id = uuid.v4();
         credentials[id] = {};
-        let pairs = body.split('&');
-        pairs.forEach(pair => {
-          let [key, value] = pair.split('=');
-          credentials[id][key] = value;
-        });
+        credentials[id] = formData;
         writeResponse(res, 302, {'Location': '/gg', 'Set-Cookie': 'id=' + id}, 'Loading...');
       });
       break;
@@ -74,22 +71,26 @@ function handleUnsupported(req, res) {
 }
 
 function writeResponse(res, statusCode, headers, content) {
-  Object.entries(headers).forEach(entry => {
-    const [key, value] = entry;
+  for (let [key, value] of Object.entries(headers)) {
     res.setHeader(key, value);
-  });
+  }
   res.writeHead(statusCode);
   res.end(content);
 }
 
-function readBody(req, callback) {
+function parseFormData(req, callback) {
   let body = '';
   req
   .on('data', chunk => {
     body += chunk;
   })
   .on('end', () => {
-    return callback(body);
+    let searchParams = new URLSearchParams(body);
+    let formData = {};
+    searchParams.forEach((value, key) => {
+      formData[key] = value;
+    });
+    callback(formData);
   });
 }
 

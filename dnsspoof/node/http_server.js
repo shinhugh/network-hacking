@@ -15,6 +15,9 @@ function handleGet(req, res) {
     case '/':
       resource = '/login.html';
       break;
+    case 'favicon.ico':
+      resource = '/img/favicon.ico';
+      break;
     case '/gg':
       resource = '/hacked.html';
       break;

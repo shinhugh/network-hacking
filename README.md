@@ -1,9 +1,7 @@
 # network-hacking
 Various configuration files and scripts used for network hacking through a Linux box.
 
-![Login page](https://github.com/shinhugh/network-hacking/blob/master/screenshots/captiveportal_0.jpg?raw=true)
-![Login page](https://github.com/shinhugh/network-hacking/blob/master/screenshots/captiveportal_1.jpg?raw=true)
-![Hacked page](https://github.com/shinhugh/network-hacking/blob/master/screenshots/hacked.jpg?raw=true)
+![Captive portal flow](https://github.com/shinhugh/network-hacking/blob/master/screenshots/captiveportal.gif?raw=true)
 
 ## Required hardware
 - a network interface capable of access point (AP) mode<br>I am using the [Panda Wireless PAU06](https://www.pandawireless.com/panda300mbpsant.htm).

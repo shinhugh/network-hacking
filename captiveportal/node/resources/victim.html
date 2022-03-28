@@ -1,20 +1,28 @@
 <html>
 <head>
-  <title>GG</title>
+  <title>Warning</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    * {
+      margin: 0;
+      font-family: monospace;
+      font-size: 12px;
+    }
+  </style>
 </head>
 
-<body>
-  <h1>Uh oh!</h1>
-  <p>You fell for it. You've sent your Google credentials through an insecure connection.</p>
-  <p><strong>Your credentials</strong>:</p>
-  <p><strong>Username</strong>: [PLACEHOLDER_USERNAME]</p>
-  <p><strong>Password</strong>: [PLACEHOLDER_PASSWORD]</p>
-  <p>Don't panic! I'm an ethical hacker. This server does not collect any data on its connections. Your credentials were not logged/saved anywhere.</p>
-  <p>The next time that your browser warns you about an insecure connection, please respect it. Make sure to pay attention to any icons and indicators on your browser's UI; the internet is a dangerous place, and any modern browser is well-equipped to keep you protected, as long as you pay attention to its indicators.</p>
-  <p>Again, I promise you that your credentials are not saved anywhere. They were simply forwarded back as a part of this HTML page. However, if you feel paranoid, feel free to change your password (you've learned the rather easy way).</p>
-  <p>Also, don't use this network anymore; as you can clearly see, it's been compromised.</p>
-  <p>- Your friendly local hacker</p>
+<body style="background:black;color:red">
+  <div style="width:100%;height:100%;padding:25px 10px;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;gap:15px;text-align:center">
+    <h1 style="font-size:28px">Warning</h1>
+    <img src="/img/anonymous.png" style="width:150px;height:150px">
+    <p>You've submitted your credentials through an insecure connection.</p>
+    <p style="margin-top:20px">Username:</p>
+    <p style="font-size:20px">[PLACEHOLDER_USERNAME]</p>
+    <p>Password:</p>
+    <p style="font-size:20px">[PLACEHOLDER_PASSWORD]</p>
+    <p style="margin-top:20px">Your information has not been compromised. This is a friendly warning.</p>
+    <p>Please be more cautious.</p>
+  </div>
 </body>
 </html>
